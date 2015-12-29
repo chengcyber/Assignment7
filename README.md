@@ -1,2 +1,2 @@
 # Assignment7
-Assignment7 - FacPamphlet
+Assignment7 - FacePamphlet
