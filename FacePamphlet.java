@@ -21,11 +21,10 @@ public class FacePamphlet extends Program
 	 */
 	public void init() {
 		// You fill this in
-		canvas = new FacePamphletCanvas();
-		add(canvas);
+		
 		
 		/* NORTH */
-		txtName = new JTextField(10);
+		txtName = new JTextField(TEXT_FIELD_SIZE);
 		
 		add(new JLabel("Name"), NORTH);
 		add(txtName, NORTH);
@@ -34,9 +33,9 @@ public class FacePamphlet extends Program
 		add(new JButton("Lookup"), NORTH);
 		
 		/* WEST */
-		txtStatus = new JTextField(10);
-		txtPicture = new JTextField(10);
-		txtFriend = new JTextField(10);
+		txtStatus = new JTextField(TEXT_FIELD_SIZE);
+		txtPicture = new JTextField(TEXT_FIELD_SIZE);
+		txtFriend = new JTextField(TEXT_FIELD_SIZE);
 		
 		add(txtStatus, WEST);
 		add(new JButton("Change Status"), WEST);
@@ -45,6 +44,17 @@ public class FacePamphlet extends Program
 		add(txtFriend, WEST);
 		add(new JButton("Add Friend"), WEST);
 		
+		/* CENTER */
+		/* Canvas */
+		canvas = new FacePamphletCanvas();
+		add(canvas);
+		
+		
+		/* Database */
+		db = new FacePamphletDatabase();
+		
+		/* Listeners */
+		addActionListeners();
     }
     
   
@@ -55,6 +65,51 @@ public class FacePamphlet extends Program
      */
     public void actionPerformed(ActionEvent e) {
 		// You fill this in as well as add any additional methods
+    	String cmd = e.getActionCommand();
+    	if (cmd.equals("Add")) {
+    		profile = new FacePamphletProfile(txtName.getText());
+    		db.addProfile(profile);
+    		canvas.displayProfile(profile);
+    		canvas.showMessage("New Profile added");
+    	} else if (cmd.equals("Delete")) {
+    		if (db.containsProfile(txtName.getText())){
+    			db.deleteProfile(txtName.getText());
+    			canvas.showMessage(txtName.getText() + " has been deleted");
+    		} else {
+    			canvas.showMessage("no this file, can not delete");
+    		}
+    	} else if (cmd.equals("Lookup")) {
+    		profile = db.getProfile(txtName.getText());
+    		if (profile == null) {
+    			canvas.showMessage("no this file, can not lookup");
+    		} else {
+    			canvas.displayProfile(profile);
+    			canvas.showMessage("Here you are");
+    		}
+    	} else if (cmd.equals("Change Status")) {
+    		profile.setStatus(txtStatus.getText());
+    		canvas.displayProfile(profile);
+    		canvas.showMessage("Status changed");
+    	} else if (cmd.equals("Change Picture")) {
+			try {
+				profile.setImage(new GImage("images\\" + txtPicture.getText()));
+				canvas.displayProfile(profile);
+				canvas.showMessage("Image changed");
+			} catch (Exception ex) {
+				canvas.showMessage("No such image file");
+			}    		
+    	} else if (cmd.equals("Add Friend")) {
+    		if(db.containsProfile(txtFriend.getText())) {
+    			if(profile.addFriend(txtFriend.getText())) {
+    				canvas.displayProfile(profile);
+    				canvas.showMessage(txtFriend.getText() + " added as a friend");
+    			} else {
+    				canvas.showMessage(txtFriend.getText() + " already is a friend");
+    			}
+    		} else {
+    			canvas.showMessage("no file for " + txtFriend.getText());
+    		}
+    	}
 	}
     
     /* ivars */
@@ -64,4 +119,7 @@ public class FacePamphlet extends Program
     private JTextField txtFriend;
     private JTextField txtName;
 
+    private GLabel msgLabel;
+    private FacePamphletDatabase db;
+    private FacePamphletProfile profile;
 }
